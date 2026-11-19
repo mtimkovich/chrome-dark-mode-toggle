@@ -4,7 +4,7 @@
 <pre id="out"></pre>
 <script src="lib.js"></script>
 <script>
-const { originOf, nextOverride, badgeFor, toggleOrigin, isSupported } = DM;
+const { syncAddedAt, sortOrigins, originOf, nextOverride, badgeFor, toggleOrigin, isSupported } = DM;
 let pass = 0, fail = 0; const out = [];
 const eq = (name, a, b) => {
   const ok = JSON.stringify(a) === JSON.stringify(b);
@@ -31,6 +31,12 @@ eq('supported: yes', isSupported({ preferences: { colorScheme: {} } }), true);
 eq('supported: no preferences', isSupported({}), false);
 eq('supported: no colorScheme', isSupported({ preferences: {} }), false);
 eq('supported: null', isSupported(null), false);
+eq('added: stamps new', syncAddedAt({}, {}, { 'a': 'dark' }, 5), { a: 5 });
+eq('added: keeps existing on mode change', syncAddedAt({ a: 1 }, { a: 'dark' }, { a: 'light' }, 9), { a: 1 });
+eq('added: drops removed', syncAddedAt({ a: 1, b: 2 }, { a: 'dark', b: 'dark' }, { b: 'dark' }, 9), { b: 2 });
+eq('added: stamps legacy site missing a time', syncAddedAt({}, { a: 'dark' }, { a: 'dark' }, 7), { a: 7 });
+eq('sort: newest first', sortOrigins(['a', 'b', 'c'], { a: 1, b: 3, c: 2 }), ['b', 'c', 'a']);
+eq('sort: untimed sink, A-Z', sortOrigins(['z', 'y', 'n'], { n: 4 }), ['n', 'y', 'z']);
 out.push(`\n${pass} passed, ${fail} failed`);
 document.getElementById('out').textContent = out.join('\n');
 document.title = fail ? 'FAIL' : 'PASS';

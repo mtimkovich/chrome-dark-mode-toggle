@@ -2,6 +2,7 @@ importScripts('lib.js');
 const { originOf, badgeFor, toggleOrigin } = DM;
 
 const KEY = 'overrides';
+const ADDED = 'addedAt';
 const OPTIONS_URL = chrome.runtime.getURL('options.html');
 // Support is recorded for the options page under a fixed pseudo-origin.
 const OPTIONS_ORIGIN = 'options';
@@ -70,8 +71,10 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 
   const { system = 'light' } = await chrome.storage.local.get('system');
-  const all = toggleOrigin(await getAll(), origin, system);
-  await chrome.storage.sync.set({ [KEY]: all });
+  const before = await getAll();
+  const all = toggleOrigin(before, origin, system);
+  const { [ADDED]: prev = {} } = await chrome.storage.sync.get(ADDED);
+  await chrome.storage.sync.set({ [KEY]: all, [ADDED]: DM.syncAddedAt(prev, before, all, Date.now()) });
   paint(tab.id, tab.url);
 });
 

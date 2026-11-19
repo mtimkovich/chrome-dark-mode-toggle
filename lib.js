@@ -32,5 +32,19 @@
     return !!(nav && nav.preferences && nav.preferences.colorScheme);
   }
 
-  root.DM = { originOf, nextOverride, badgeFor, toggleOrigin, isSupported };
+  // Keeps the origin -> timestamp map in step with an overrides change:
+  // stamps newly added origins, drops removed ones, leaves mode changes alone.
+  function syncAddedAt(addedAt, before, after, now) {
+    const next = { ...addedAt };
+    for (const o of Object.keys(after)) if (!(o in before) || next[o] == null) next[o] = now;
+    for (const o of Object.keys(next)) if (!(o in after)) delete next[o];
+    return next;
+  }
+
+  // Most recently added first; sites with no timestamp (older saves) sink, A-Z.
+  function sortOrigins(origins, addedAt) {
+    return [...origins].sort((a, b) => ((addedAt[b] || 0) - (addedAt[a] || 0)) || a.localeCompare(b));
+  }
+
+  root.DM = { syncAddedAt, sortOrigins, originOf, nextOverride, badgeFor, toggleOrigin, isSupported };
 })(globalThis);

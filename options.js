@@ -2,11 +2,16 @@ const KEY = 'overrides';
 const list = document.getElementById('list');
 
 const getAll = async () => (await chrome.storage.sync.get(KEY))[KEY] || {};
-const save = (all) => chrome.storage.sync.set({ [KEY]: all });
+const getAdded = async () => (await chrome.storage.sync.get('addedAt')).addedAt || {};
+const save = async (all) => {
+  const before = await getAll();
+  const added = DM.syncAddedAt(await getAdded(), before, all, Date.now());
+  await chrome.storage.sync.set({ [KEY]: all, addedAt: added });
+};
 
 async function render() {
   const all = await getAll();
-  const origins = Object.keys(all).sort();
+  const origins = DM.sortOrigins(Object.keys(all), await getAdded());
   list.replaceChildren();
   if (!origins.length) {
     list.innerHTML = '<tr><td class="empty">No overridden sites yet.</td></tr>';
