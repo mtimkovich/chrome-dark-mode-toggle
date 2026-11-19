@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Dark Mode Toggle – Saved sites</title>
+<style>
+  :root { color-scheme: light dark; --bg: #fff; --fg: #202124; --line: #8884; --warn-bg: #fff3cd; --warn-fg: #533f03; --warn-line: #e0c36a; }
+  /* prefers-color-scheme follows navigator.preferences.colorScheme.requestOverride() */
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #202124; --fg: #e8eaed; --warn-bg: #3d3300; --warn-fg: #ffe9a0; --warn-line: #7a6a1f; }
+  }
+  body { font: 14px system-ui; max-width: 640px; margin: 2rem auto; padding: 0 1rem; background: var(--bg); color: var(--fg); }
+  a { color: inherit; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: .4rem .5rem; border-bottom: 1px solid var(--line); }
+  td:last-child { text-align: right; }
+  .empty { color: #888; }
+  button { cursor: pointer; }
+  header { display: flex; justify-content: space-between; align-items: center; }
+  #warning, #insecure { background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-line); padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+</style>
+<div id="warning" hidden>
+  <strong>Web Platform features are not enabled.</strong>
+  This extension needs the experimental Web Preferences API (<code>navigator.preferences</code>).
+  Open <a href="#" id="flags">chrome://flags/#enable-experimental-web-platform-features</a>,
+  set it to <em>Enabled</em> and relaunch Chrome. For http sites also add them to
+  <code>#unsafely-treat-insecure-origin-as-secure</code>.
+</div>
+<div id="insecure" class="banner" hidden>
+  <strong>The Web Preferences API isn't available on <span id="site"></span>.</strong>
+  Web Platform features are on, but plain http pages aren't secure contexts. Add the site to
+  <a href="#" id="insecure-flag">chrome://flags/#unsafely-treat-insecure-origin-as-secure</a>
+  (exact origin, including the port) and relaunch Chrome.
+</div>
+<header>
+  <h1>Saved sites</h1>
+  <label>Theme
+    <select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select>
+  </label>
+</header>
+<table id="list"></table>
+<p><button id="clear">Clear all</button></p>
+<script src="lib.js"></script>
+<script src="options.js"></script>

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Per-Site Dark Mode Toggle",
+  "version": "0.1.0",
+  "description": "Override prefers-color-scheme per site using the experimental Web Preferences API.",
+  "permissions": ["storage", "tabs", "scripting"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": { "service_worker": "background.js" },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "action": { "default_title": "Toggle dark mode for this site" },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}

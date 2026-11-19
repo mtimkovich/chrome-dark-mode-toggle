@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Tests</title>
+<pre id="out"></pre>
+<script src="lib.js"></script>
+<script>
+const { originOf, nextOverride, badgeFor, toggleOrigin, isSupported } = DM;
+let pass = 0, fail = 0; const out = [];
+const eq = (name, a, b) => {
+  const ok = JSON.stringify(a) === JSON.stringify(b);
+  ok ? pass++ : fail++; out.push((ok ? 'PASS ' : 'FAIL ') + name + (ok ? '' : ` got ${JSON.stringify(a)} want ${JSON.stringify(b)}`));
+};
+eq('originOf https', originOf('https://a.com/x?y'), 'https://a.com');
+eq('originOf http+port', originOf('http://192.168.1.10:8080/p'), 'http://192.168.1.10:8080');
+eq('originOf chrome://', originOf('chrome://flags'), null);
+eq('originOf garbage', originOf('nope'), null);
+eq('originOf undefined', originOf(undefined), null);
+eq('next: none + system light -> dark', nextOverride(undefined, 'light'), 'dark');
+eq('next: none + system dark -> light', nextOverride(undefined, 'dark'), 'light');
+eq('next: dark -> system', nextOverride('dark', 'light'), null);
+eq('next: light -> system', nextOverride('light', 'dark'), null);
+eq('badge dark', badgeFor('dark', true).text, 'D');
+eq('badge light', badgeFor('light', true).text, 'L');
+eq('badge system', badgeFor(undefined, true).text, '');
+eq('badge unsupported', badgeFor('dark', false), { text: 'N/A', color: '#c00' });
+const base = { 'https://a.com': 'dark' };
+eq('toggle adds', toggleOrigin(base, 'https://b.com', 'light'), { 'https://a.com': 'dark', 'https://b.com': 'dark' });
+eq('toggle removes', toggleOrigin(base, 'https://a.com', 'light'), {});
+eq('toggle does not mutate', base, { 'https://a.com': 'dark' });
+eq('supported: yes', isSupported({ preferences: { colorScheme: {} } }), true);
+eq('supported: no preferences', isSupported({}), false);
+eq('supported: no colorScheme', isSupported({ preferences: {} }), false);
+eq('supported: null', isSupported(null), false);
+out.push(`\n${pass} passed, ${fail} failed`);
+document.getElementById('out').textContent = out.join('\n');
+document.title = fail ? 'FAIL' : 'PASS';
+</script>
